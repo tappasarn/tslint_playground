@@ -59,3 +59,12 @@ typings/
 
 # next.js build output
 .next
+
+# DS_store
+.DS_store
+
+# JS Bundle
+dist/bundle.js
+
+#package.json's lock file
+package-lock.json
