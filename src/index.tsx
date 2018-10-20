@@ -1,15 +1,15 @@
 import * as React from 'react';
-import * as ReactDOM from "react-dom";
+import * as ReactDOM from 'react-dom';
 
-interface Props {
-   name: string
+interface IProps {
+  name: string;
 }
 
-class App extends React.Component<Props> {
-  render() {
+class App extends React.Component<IProps> {
+  public render() {
     return <div>Hello {this.props.name}</div>;
   }
 }
 
-var mountNode = document.getElementById("app");
+const mountNode = document.getElementById('app');
 ReactDOM.render(<App name="Jane" />, mountNode);

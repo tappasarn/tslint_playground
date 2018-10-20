@@ -1,9 +1,15 @@
 {
     "extends": ["tslint:recommended", "tslint-config-airbnb"],
+    "rules": {
+        "max-classes-per-file": false,
+        "indent": [true, "spaces", 4],
+        "no-imports": true
+    },   
     "linterOptions": {
         "exclude":[
             "node_modules/**/*.ts",
             "config/**/*.js"
         ]
-    }
+    },
+    "rulesDirectory": "lint"
 }
