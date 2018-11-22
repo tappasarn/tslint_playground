@@ -213,6 +213,92 @@ Now you should see TSLint only reports on the import statement of *react*.
 ## Debug with VSCode
 In the case that your custom rules do not work as expected, you can always add console.log() in your someRule.ts file and recompile. Then hit f1 and type TSLint: Show output in VSCode.
 
+## Create an NPM package
+There will be times where you want to share the rules that you have created to different projects. Instead of copying rules into the new project over and over again, it might be a better idea to create a custom npm package for it.
+
+1) Go to your github account and create a new repository for this tslint npm package.
+![new-repo](https://user-images.githubusercontent.com/11821799/48848368-520a6f80-edd6-11e8-822f-932dafd98c85.png)
 
 
+2) Clone the project into your local machine. 
+
+3) Inside your project directory run the following command.
+```sh
+npm init
+```
+
+4) Let's name the entry point (main) as yourname-tslint.json. For the rest of the option it is totally up to you.
+
+5) On the top level of the project's directory create yourname-tslint.json. This is where we will put the default rules.
+
+6) Create folder called rules on the top level of the project as well. We will keep our custom rules inside this folder.
+
+7) Create file name disallowedInTestsRule.ts in rules folder and add the following code. (Spend sometime with it, and see what it does. It is not too hard).
+``` ts
+import * as ts from "typescript";
+import * as Lint from "tslint";
+
+interface ICustomOption {
+    name: string;
+    message: string;
+}
+
+export class Rule extends Lint.Rules.AbstractRule {
+    public static DEFAULT_FAILURE_STRING = "This method invocation is not allowed to be used on test files";
+
+    public apply(sourceFile: ts.SourceFile): Lint.RuleFailure[] {
+        return this.applyWithWalker(new DisallowedInTestsWalker(sourceFile, this.getOptions()));
+    }
+}
+
+class DisallowedInTestsWalker extends Lint.RuleWalker {
+    public visitCallExpression(node: ts.CallExpression) {
+        const fileName: string = node && node.getSourceFile().fileName || "";
+        const isTestFile: boolean = new RegExp("\\b" + ".test" + "\\b").test(fileName);
+        const functionName: string = node && node.expression && node.expression.getText() || "";
+        const verifiedCustomOptions: ICustomOption[] = this.verifyAndGetCustomOptions(functionName);
+
+        if (isTestFile && verifiedCustomOptions.length > 0) {
+            this.addFailure(
+                this.createFailure(node.getStart(),
+                node.getWidth(),
+                verifiedCustomOptions[0].message || Rule.DEFAULT_FAILURE_STRING));
+        }
+        super.visitCallExpression(node);
+    }
+
+    private verifyAndGetCustomOptions(functionName: string): ICustomOption[] {
+        const customOptionSetInTslintJson: ICustomOption[] = this.getOptions();
+        const verifiedCustomOptions: ICustomOption[] = customOptionSetInTslintJson.filter(option => option && option.name === functionName);
+        return verifiedCustomOptions;
+    }
+}
+```
+
+8) Since the code above requires typescript and tslint. We will have to install them.
+```sh
+npm install tslint typescript --save-dev
+```
+
+9) Now compile your rules into JavaScript with the following command. But, dont forget the change directory to rules folder first.
+```sh
+tsc --lib es2015 disallowedInTestsRule.ts
+```
+
+10) Now you will see a JS file got created.
+
+11) Go to 'yourname-tslint.json' and add the following code.
+``` json
+{
+    "rulesDirectory": "./rules",
+    "rules": {
+        "disallowed-in-tests": false
+    }
+}
+```
+
+12) you are set. Let's publish the npm package with 
+```sh
+npm publish
+```
 
