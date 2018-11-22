@@ -299,6 +299,22 @@ tsc --lib es2015 disallowedInTestsRule.ts
 
 12) you are set. Let's publish the npm package with 
 ```sh
-npm publish
+npm publish --access public
+```
+
+13) If you have a problem try adding new user 
+```sh
+npm adduser
+```
+
+14) Add them into you project's tslint.json
+```json
+{
+    "extends": ["tappasarn_tslint"],
+        "disallowed-in-tests": [
+      true,
+      {"name": "process.nextTick", "message": "some message"}
+    ]
+}
 ```
 
